@@ -17,6 +17,13 @@ public class Constants {
     public static final String KEY_USER = "user";
 
 
+    public static final String KEY_COLLECTION_BIN = "bins";
+    public static final String KEY_BIN_ID = "id";
+    public static final String KEY_BIN_LATITUDE = "lat";
+    public static final String KEY_BIN_LONGITUDE = "long";
+    public static final String KEY_BIN_STATUS = "status";
+
+
     public static final String KEY_IS_SIGNED_IN = "isSignedIn";
 
 

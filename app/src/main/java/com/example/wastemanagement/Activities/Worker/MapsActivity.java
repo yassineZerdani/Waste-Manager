@@ -1,22 +1,42 @@
 package com.example.wastemanagement.Activities.Worker;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.View;
 
+import com.example.wastemanagement.Adapters.WorkersAdapter;
+import com.example.wastemanagement.Models.Bin;
+import com.example.wastemanagement.Models.User;
 import com.example.wastemanagement.R;
+import com.example.wastemanagement.Utilities.Constants;
+import com.example.wastemanagement.Utilities.PreferenceManager;
 import com.example.wastemanagement.databinding.ActivityMapsBinding;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
+    private PreferenceManager preferenceManager;
+    private List<Bin> bins = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,11 +45,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        preferenceManager = new PreferenceManager(getApplicationContext());
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
+
+
+
+
 
     /**
      * Manipulates the map once available.
@@ -44,9 +70,75 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
+        FirebaseFirestore database = FirebaseFirestore.getInstance();
+
+        database.collection(Constants.KEY_COLLECTION_BIN)
+                .get()
+                .addOnCompleteListener(task -> {
+
+                    String currentUserId = preferenceManager.getString(Constants.KEY_BIN_ID);
+                    if(task.isSuccessful() && task.getResult() != null){
+
+                        for(QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
+                            if(currentUserId.equals(queryDocumentSnapshot.getId())){
+                                continue;
+                            }
+                            Bin bin = new Bin();
+                            bin.lat = queryDocumentSnapshot.getDouble(Constants.KEY_BIN_LATITUDE);
+                            bin.longitude = queryDocumentSnapshot.getDouble(Constants.KEY_BIN_LONGITUDE);
+                            bin.status = queryDocumentSnapshot.getString(Constants.KEY_BIN_STATUS);
+                            bin.id = queryDocumentSnapshot.getId();
+                            bins.add(bin);
+                        }
+
+                        for (Bin bini:bins) {
+                            System.out.print(bini.status);
+
+                            if (bini.status.equals("empty")){
+                                LatLng be = new LatLng(bini.lat, bini.longitude);
+                                mMap.addMarker(new MarkerOptions().position(be)
+                                        // below line is use to add custom marker on our map.
+                                        .icon(BitmapFromVector(getApplicationContext(), R.drawable.ic_trash_empty)));
+                            }
+
+                            else if(bini.status.equals("full")){
+                                LatLng bf = new LatLng(bini.lat, bini.longitude);
+                                mMap.addMarker(new MarkerOptions().position(bf)
+                                        // below line is use to add custom marker on our map.
+                                        .icon(BitmapFromVector(getApplicationContext(), R.drawable.ic_trash_full)));
+                            }
+                        }
+
+
+                    }
+                });
+
         // Add a marker in Sydney and move the camera
         LatLng rabat = new LatLng(34.020882, -6.841650);
-        mMap.addMarker(new MarkerOptions().position(rabat).title("Marker in Rabat"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(rabat, 13));
+
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(rabat, 0));
+    }
+
+    private BitmapDescriptor BitmapFromVector(Context context, int vectorResId) {
+        // below line is use to generate a drawable.
+        Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
+
+        // below line is use to set bounds to our vector drawable.
+        vectorDrawable.setBounds(0, 0, vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight());
+
+        // below line is use to create a bitmap for our
+        // drawable which we have added.
+        Bitmap bitmap = Bitmap.createBitmap(vectorDrawable.getIntrinsicWidth(), vectorDrawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+
+        // below line is use to add bitmap in our canvas.
+        Canvas canvas = new Canvas(bitmap);
+
+        // below line is use to draw our
+        // vector drawable in canvas.
+        vectorDrawable.draw(canvas);
+
+        // after generating our bitmap we are returning our bitmap.
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 }
