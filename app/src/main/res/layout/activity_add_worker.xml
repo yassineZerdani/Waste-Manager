@@ -5,12 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipToPadding="false"
-    android:overScrollMode="always"
+    android:overScrollMode="never"
     android:padding="@dimen/_24sdp"
     android:scrollbars="none"
-    tools:context=".Activities.Auth.SignUp">
+    tools:context=".Activities.Admin.AddWorkerActivity">
 
     <LinearLayout
+
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -20,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/_16sdp"
-            android:text="Créer un nouveau compte"
+            android:text="Ajouter un Ouvrier"
             android:textColor="@color/black"
             android:textSize="@dimen/_18ssp"
             android:textStyle="bold" />
@@ -32,7 +33,7 @@
             android:layout_marginTop="@dimen/_20sdp" >
 
             <com.makeramen.roundedimageview.RoundedImageView
-                android:id="@+id/imageProfile"
+                android:id="@+id/imageService"
                 android:layout_width="@dimen/_80sdp"
                 android:layout_height="@dimen/_80sdp"
                 android:background="@drawable/background_image"
@@ -44,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Ajouter une image"
+                android:text="Ajouter une Image"
                 android:textSize="@dimen/_8ssp" />
 
 
@@ -52,22 +53,7 @@
 
 
         <EditText
-            android:id="@+id/first_name_signup"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_45sdp"
-            android:layout_marginTop="@dimen/_30sdp"
-            android:background="@drawable/background_input"
-            android:hint="Prénom"
-            android:imeOptions="actionNext"
-            android:importantForAutofill="no"
-            android:inputType="text"
-            android:paddingStart="@dimen/_16sdp"
-            android:paddingEnd="@dimen/_16sdp"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_13ssp" />
-
-        <EditText
-            android:id="@+id/last_name_signup"
+            android:id="@+id/nom_prof"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_45sdp"
             android:layout_marginTop="@dimen/_30sdp"
@@ -83,22 +69,7 @@
 
 
         <EditText
-            android:id="@+id/phone_signup"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_45sdp"
-            android:layout_marginTop="@dimen/_30sdp"
-            android:background="@drawable/background_input"
-            android:hint="Téléphone"
-            android:imeOptions="actionNext"
-            android:importantForAutofill="no"
-            android:inputType="phone"
-            android:paddingStart="@dimen/_16sdp"
-            android:paddingEnd="@dimen/_16sdp"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_13ssp" />
-
-        <EditText
-            android:id="@+id/email_signup"
+            android:id="@+id/email_prof"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_45sdp"
             android:layout_marginTop="@dimen/_16sdp"
@@ -106,37 +77,22 @@
             android:hint="E-mail"
             android:imeOptions="actionNext"
             android:importantForAutofill="no"
-            android:inputType="textEmailAddress"
+            android:inputType="textPostalAddress"
             android:paddingStart="@dimen/_16sdp"
             android:paddingEnd="@dimen/_16sdp"
             android:textColor="@color/black"
             android:textSize="@dimen/_13ssp" />
 
         <EditText
-            android:id="@+id/password_signup"
+            android:id="@+id/password_prof"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_45sdp"
             android:layout_marginTop="@dimen/_16sdp"
             android:background="@drawable/background_input"
-            android:hint="Mot de passe"
-            android:imeOptions="actionNext"
-            android:importantForAutofill="no"
-            android:inputType="textPassword"
-            android:paddingStart="@dimen/_16sdp"
-            android:paddingEnd="@dimen/_16sdp"
-            android:textColor="@color/black"
-            android:textSize="@dimen/_13ssp" />
-
-        <EditText
-            android:id="@+id/password2_signup"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/_45sdp"
-            android:layout_marginTop="@dimen/_16sdp"
-            android:background="@drawable/background_input"
-            android:hint="Confirmez le mot de passe"
+            android:hint="Mot de Pass"
             android:imeOptions="actionDone"
             android:importantForAutofill="no"
-            android:inputType="textPassword"
+            android:inputType="text"
             android:paddingStart="@dimen/_16sdp"
             android:paddingEnd="@dimen/_16sdp"
             android:textColor="@color/black"
@@ -144,26 +100,16 @@
 
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/signup"
+            android:id="@+id/add_prof"
             android:layout_width="match_parent"
             android:layout_height="@dimen/_50sdp"
             android:layout_marginTop="@dimen/_20sdp"
-            android:text="Sign Up"
+            android:text="Ajouter"
             android:textColor="@color/white"
             android:textSize="@dimen/_13ssp"
             android:textStyle="bold"
             app:cornerRadius="@dimen/_8sdp"
             android:backgroundTint="@color/primary"/>
-
-        <TextView
-            android:id="@+id/signin_link"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/_10sdp"
-            android:text="Login?"
-            android:textColor="@color/primary"
-            android:textSize="@dimen/_13ssp"
-            android:textStyle="bold" />
 
 
     </LinearLayout>

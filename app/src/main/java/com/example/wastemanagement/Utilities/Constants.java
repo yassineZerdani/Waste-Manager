@@ -6,27 +6,15 @@ public class Constants {
     public static final String KEY_PREFERENCE_NAME = "chatAppPreference";
 
 
-    public static final String KEY_COLLECTION_PROFESSORS = "professeurs";
-    public static final String KEY_PROFESSOR_ID = "id";
-    public static final String KEY_PROFESSOR_FIRST_NAME = "first_name";
-    public static final String KEY_PROFESSOR_LAST_NAME = "last_name";
-    public static final String KEY_PROFESSOR_PHONE = "phone";
-    public static final String KEY_PROFESSOR_DEPARTEMENT = "departement";
-    public static final String KEY_PROFESSOR_IMAGE = "image";
-    public static final String KEY_PROFESSOR_EMAIL = "email";
-    public static final String KEY_PROFESSOR_PASSWORD = "password";
-    public static final String KEY_PROFESSOR = "professeur";
-
-
     public static final String KEY_COLLECTION_ETUDIANT = "etudiants";
-    public static final String KEY_ETUDIANT_ID = "id";
-    public static final String KEY_ETUDIANT_FIRST_NAME = "first_name";
-    public static final String KEY_ETUDIANT_LAST_NAME = "last_name";
-    public static final String KEY_ETUDIANT_PHONE = "phone";
-    public static final String KEY_ETUDIANT_IMAGE = "image";
-    public static final String KEY_ETUDIANT_EMAIL = "email";
-    public static final String KEY_ETUDIANT_PASSWORD = "password";
-    public static final String KEY_ETUDIANT = "etudiant";
+    public static final String KEY_USER_ID = "id";
+    public static final String KEY_USER_NAME = "name";
+    public static final String KEY_USER_LAST_NAME = "last_name";
+    public static final String KEY_USER_PHONE = "phone";
+    public static final String KEY_USER_IMAGE = "image";
+    public static final String KEY_USER_EMAIL = "email";
+    public static final String KEY_USER_PASSWORD = "password";
+    public static final String KEY_USER = "user";
 
 
     public static final String KEY_IS_SIGNED_IN = "isSignedIn";
@@ -70,9 +58,7 @@ public class Constants {
     public static final String KEY_EMAIL = "email";
     public static final String KEY_PASSWORD = "password";
 
-    public static final String KEY_USER_ID = "userId";
     public static final String KEY_IMAGE = "image";
-    public static final String KEY_USER = "user";
 
     public static final String KEY_SERVICE_NAME = "serviceName";
     public static final String KEY_SERVICE_IMAGE = "serviceImage";

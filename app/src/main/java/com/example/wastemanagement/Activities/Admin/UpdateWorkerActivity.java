@@ -1,7 +1,8 @@
-package com.example.wastemanagement.Activities.Auth;
+package com.example.wastemanagement.Activities.Admin;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -11,14 +12,18 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Patterns;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.wastemanagement.MainActivity;
+import com.example.wastemanagement.Models.User;
 import com.example.wastemanagement.Utilities.Constants;
 import com.example.wastemanagement.Utilities.PreferenceManager;
-import com.example.wastemanagement.databinding.ActivitySignUpBinding;
+import com.example.wastemanagement.databinding.ActivityAddWorkerBinding;
+import com.example.wastemanagement.databinding.ActivityUpdateWorkerBinding;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
@@ -26,25 +31,28 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-public class SignUp extends AppCompatActivity {
+public class UpdateWorkerActivity extends AppCompatActivity {
 
-    private ActivitySignUpBinding binding;
-    private PreferenceManager preferenceManager;
+    private ActivityUpdateWorkerBinding binding;
     private String encodedImage;
+    private User user;
+    private PreferenceManager preferenceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivitySignUpBinding.inflate(getLayoutInflater());
+        binding = ActivityUpdateWorkerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         preferenceManager = new PreferenceManager(getApplicationContext());
+        loadUserDetails();
         setListeners();
     }
 
     private void setListeners(){
-        binding.signup.setOnClickListener(v -> {
-            if(isValidSignUpDetails()){
-                signUp();
+        binding.addProf.setOnClickListener(v -> {
+            if(isValidUserDetails()){
+                updateUser();
+                startActivity(new Intent(this, WorkersActivity.class));
             }
             binding.textAddImage.setOnClickListener(d -> {
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -58,26 +66,35 @@ public class SignUp extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    private void signUp(){
+
+    private Bitmap getBitmapFromEncodedString(String encodedImage){
+        byte[] bytes = Base64.decode(encodedImage, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+    }
+
+    private void loadUserDetails(){
+        user = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
+        binding.imageService.setImageBitmap(getBitmapFromEncodedString(user.image));
+        binding.nomProf.setText(user.name);
+        binding.emailProf.setText(user.email);
+        binding.passwordProf.setText(user.password);
+    }
+
+
+
+    private void updateUser(){
+
         FirebaseFirestore database = FirebaseFirestore.getInstance();
-        HashMap<String, Object> user = new HashMap<>();
-        user.put(Constants.KEY_NAME, binding.firstNameSignup.getText().toString());
-        user.put(Constants.KEY_EMAIL, binding.emailSignup.getText().toString());
-        user.put(Constants.KEY_PASSWORD, binding.passwordSignup.getText().toString());
-        user.put(Constants.KEY_IMAGE, encodedImage);
-        user.put(Constants.KEY_ROLE, "USER");
-        database.collection(Constants.KEY_COLLECTION_USERS).add(user).addOnSuccessListener(documentReference -> {
-            preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
-            preferenceManager.putString(Constants.KEY_USER_ID, documentReference.getId());
-            preferenceManager.putString(Constants.KEY_NAME, binding.firstNameSignup.getText().toString());
-            preferenceManager.putString(Constants.KEY_ROLE, "USER");
-            preferenceManager.putString(Constants.KEY_IMAGE, encodedImage);
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-        }).addOnFailureListener(exception -> {
-            showToast(exception.getMessage());
-        });
+
+        user = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
+
+        DocumentReference userRef = database.collection(Constants.KEY_COLLECTION_USERS).document(user.id);
+
+        userRef.update(Constants.KEY_USER_EMAIL, binding.emailProf.getText().toString());
+        userRef.update(Constants.KEY_USER_NAME, binding.nomProf.getText().toString());
+        userRef.update(Constants.KEY_USER_PASSWORD, binding.passwordProf.getText().toString());
+        userRef.update(Constants.KEY_USER_IMAGE, encodedImage);
+
     }
 
     private String encodeImage(Bitmap bitmap){
@@ -101,7 +118,7 @@ public class SignUp extends AppCompatActivity {
                         try{
                             InputStream inputStream = getContentResolver().openInputStream(imageUri);
                             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                            binding.imageProfile.setImageBitmap(bitmap);
+                            binding.imageService.setImageBitmap(bitmap);
                             binding.textAddImage.setVisibility(View.GONE);
                             encodedImage = encodeImage(bitmap);
                         }catch(FileNotFoundException e){
@@ -112,33 +129,17 @@ public class SignUp extends AppCompatActivity {
             }
     );
 
-    private Boolean isValidSignUpDetails(){
+    private Boolean isValidUserDetails(){
         if(encodedImage == null){
-            showToast("Select Profile Image");
+            showToast("Select Service Image");
             return false;
         }
-        else if(binding.firstNameSignup.getText().toString().trim().isEmpty()){
-            showToast("Enter Your Name");
+        else if(binding.nomProf.getText().toString().trim().isEmpty()){
+            showToast("Enter Service Name");
             return false;
         }
-        else if(binding.emailSignup.getText().toString().trim().isEmpty()){
-            showToast("Enter Your Email");
-            return false;
-        }
-        else if(!Patterns.EMAIL_ADDRESS.matcher(binding.emailSignup.getText().toString()).matches()){
-            showToast("Email is Invalid");
-            return false;
-        }
-        else if(binding.passwordSignup.getText().toString().trim().isEmpty()){
-            showToast("Enter Your Password");
-            return false;
-        }
-        else if(binding.password2Signup.getText().toString().trim().isEmpty()){
-            showToast("Confirm Your Password");
-            return false;
-        }
-        else if(!binding.password2Signup.getText().toString().equals(binding.passwordSignup.getText().toString())){
-            showToast("Password Not Confirmed");
+        else if(binding.emailProf.getText().toString().trim().isEmpty()){
+            showToast("Enter Service Address");
             return false;
         }
         else {

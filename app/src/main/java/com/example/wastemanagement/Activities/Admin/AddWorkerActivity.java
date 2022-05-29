@@ -1,4 +1,4 @@
-package com.example.wastemanagement.Activities.Auth;
+package com.example.wastemanagement.Activities.Admin;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -11,14 +11,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
-import com.example.wastemanagement.MainActivity;
 import com.example.wastemanagement.Utilities.Constants;
 import com.example.wastemanagement.Utilities.PreferenceManager;
-import com.example.wastemanagement.databinding.ActivitySignUpBinding;
+import com.example.wastemanagement.databinding.ActivityAddWorkerBinding;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
@@ -26,25 +24,25 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.HashMap;
 
-public class SignUp extends AppCompatActivity {
+public class AddWorkerActivity extends AppCompatActivity {
 
-    private ActivitySignUpBinding binding;
-    private PreferenceManager preferenceManager;
+    private ActivityAddWorkerBinding binding;
     private String encodedImage;
+    private PreferenceManager preferenceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivitySignUpBinding.inflate(getLayoutInflater());
+        binding = ActivityAddWorkerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         preferenceManager = new PreferenceManager(getApplicationContext());
         setListeners();
     }
 
     private void setListeners(){
-        binding.signup.setOnClickListener(v -> {
-            if(isValidSignUpDetails()){
-                signUp();
+        binding.addProf.setOnClickListener(v -> {
+            if(isValidUserDetails()){
+                addUser();
             }
             binding.textAddImage.setOnClickListener(d -> {
                 Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -58,21 +56,15 @@ public class SignUp extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
     }
 
-    private void signUp(){
+    private void addUser(){
         FirebaseFirestore database = FirebaseFirestore.getInstance();
         HashMap<String, Object> user = new HashMap<>();
-        user.put(Constants.KEY_NAME, binding.firstNameSignup.getText().toString());
-        user.put(Constants.KEY_EMAIL, binding.emailSignup.getText().toString());
-        user.put(Constants.KEY_PASSWORD, binding.passwordSignup.getText().toString());
-        user.put(Constants.KEY_IMAGE, encodedImage);
+        user.put(Constants.KEY_USER_IMAGE, encodedImage);
+        user.put(Constants.KEY_USER_NAME, binding.nomProf.getText().toString());
         user.put(Constants.KEY_ROLE, "USER");
+        user.put(Constants.KEY_USER_PASSWORD, binding.passwordProf.getText().toString());
         database.collection(Constants.KEY_COLLECTION_USERS).add(user).addOnSuccessListener(documentReference -> {
-            preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
-            preferenceManager.putString(Constants.KEY_USER_ID, documentReference.getId());
-            preferenceManager.putString(Constants.KEY_NAME, binding.firstNameSignup.getText().toString());
-            preferenceManager.putString(Constants.KEY_ROLE, "USER");
-            preferenceManager.putString(Constants.KEY_IMAGE, encodedImage);
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            Intent intent = new Intent(getApplicationContext(), WorkersActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
         }).addOnFailureListener(exception -> {
@@ -101,7 +93,7 @@ public class SignUp extends AppCompatActivity {
                         try{
                             InputStream inputStream = getContentResolver().openInputStream(imageUri);
                             Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                            binding.imageProfile.setImageBitmap(bitmap);
+                            binding.imageService.setImageBitmap(bitmap);
                             binding.textAddImage.setVisibility(View.GONE);
                             encodedImage = encodeImage(bitmap);
                         }catch(FileNotFoundException e){
@@ -112,33 +104,17 @@ public class SignUp extends AppCompatActivity {
             }
     );
 
-    private Boolean isValidSignUpDetails(){
+    private Boolean isValidUserDetails(){
         if(encodedImage == null){
-            showToast("Select Profile Image");
+            showToast("Select Service Image");
             return false;
         }
-        else if(binding.firstNameSignup.getText().toString().trim().isEmpty()){
-            showToast("Enter Your Name");
+        else if(binding.nomProf.getText().toString().trim().isEmpty()){
+            showToast("Enter Service Name");
             return false;
         }
-        else if(binding.emailSignup.getText().toString().trim().isEmpty()){
-            showToast("Enter Your Email");
-            return false;
-        }
-        else if(!Patterns.EMAIL_ADDRESS.matcher(binding.emailSignup.getText().toString()).matches()){
-            showToast("Email is Invalid");
-            return false;
-        }
-        else if(binding.passwordSignup.getText().toString().trim().isEmpty()){
-            showToast("Enter Your Password");
-            return false;
-        }
-        else if(binding.password2Signup.getText().toString().trim().isEmpty()){
-            showToast("Confirm Your Password");
-            return false;
-        }
-        else if(!binding.password2Signup.getText().toString().equals(binding.passwordSignup.getText().toString())){
-            showToast("Password Not Confirmed");
+        else if(binding.emailProf.getText().toString().trim().isEmpty()){
+            showToast("Enter Service Address");
             return false;
         }
         else {

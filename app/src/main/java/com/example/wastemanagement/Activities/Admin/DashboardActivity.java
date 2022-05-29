@@ -1,52 +1,82 @@
-package com.example.wastemanagement;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.example.wastemanagement.Activities.Admin;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.example.wastemanagement.Activities.Auth.SignIn;
+import com.example.wastemanagement.UsersActivity;
 import com.example.wastemanagement.Utilities.Constants;
 import com.example.wastemanagement.Utilities.PreferenceManager;
-import com.example.wastemanagement.databinding.ActivityMainBinding;
+import com.example.wastemanagement.databinding.ActivityDashboardBinding;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.util.Base64;
+import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
+
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
+import androidx.navigation.ui.AppBarConfiguration;
+import androidx.navigation.ui.NavigationUI;
+
+
+import com.example.wastemanagement.R;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.HashMap;
 
-public class MainActivity extends AppCompatActivity {
+public class DashboardActivity extends AppCompatActivity {
 
-    PreferenceManager preferenceManager;
-    ActivityMainBinding binding;
+    private ActivityDashboardBinding binding;
+    private PreferenceManager preferenceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        preferenceManager = new PreferenceManager(getApplicationContext());
 
+        binding = ActivityDashboardBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        preferenceManager = new PreferenceManager(getApplicationContext());
+        loadUserDetails();
+        getToken();
         setListeners();
+
+
     }
 
     private void setListeners(){
-
         binding.logout.setOnClickListener(v -> signOut());
-
+        binding.reclamation.setOnClickListener(v -> startActivity(new Intent(this, UsersActivity.class)));
+        binding.workers.setOnClickListener(v -> startActivity(new Intent(this, WorkersActivity.class)));
     }
 
-    private void getToken(){
-        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(this::updateToken);
+    private void loadUserDetails(){
+        byte[] bytes = Base64.decode(preferenceManager.getString(Constants.KEY_IMAGE), Base64.DEFAULT);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        binding.imageProfile.setImageBitmap(bitmap);
     }
 
     private void showToast(String message){
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+
+
+    private void getToken(){
+        FirebaseMessaging.getInstance().getToken().addOnSuccessListener(this::updateToken);
     }
 
     private void updateToken(String token){
@@ -75,6 +105,4 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                 }).addOnFailureListener(e -> showToast("unable to sign out"));
     }
-
-
 }
